@@ -240,7 +240,8 @@ try:
             while True:
                 isFocusAssist = isFocusAssistEnabled()
                 numOfNotifs = getNotificationNumber()
-                time.sleep(0.3)
+                interval = float(getSettingsValue("PerformanceWnfDataInterval") or 5)
+                time.sleep(interval)
 
         def screenCheckThread():
             global oldScreens
@@ -250,7 +251,8 @@ try:
                     for screen in app.screens():
                         oldScreens.append(getGeometry(screen))
                     restartClocksSignal.restartSignal.emit()
-                time.sleep(1)
+                interval = float(getSettingsValue("PerformanceScreenCheckInterval") or 10)
+                time.sleep(interval)
 
         def closeClocks():
             for clock in globals.clocks:
@@ -276,8 +278,10 @@ try:
         def restartClocks(caller: str = ""):
             if globals.BLOCK_RELOAD:
                 return
-            
+
             closeClocks()
+            # 等待旧时钟窗口完全关闭，避免界面重叠
+            time.sleep(0.3)
             loadClocks()
             setSettings("ReloadInternetTime", True, thread=True)
             globals.doCacheHost = True
@@ -1199,7 +1203,7 @@ try:
 
                 IGNORE_MOUSECLICKS_WHEN_FS = self.getSettings("MouseEventTransparentFS")
                 LOW_CPU_MODE = getSettings("EnableLowCpuMode")
-                self.WAITLOOPTIME = 0.4 if LOW_CPU_MODE else 0.1
+                self.WAITLOOPTIME = float(getSettingsValue("PerformanceClockLoopInterval") or 1000) / 1000
 
                 if not self.IS_COVER:
                     ENABLE_HIDE_ON_FULLSCREEN = not self.getSettings("DisableHideOnFullScreen")
@@ -1288,7 +1292,8 @@ try:
 
                         self.refresh.emit()
 
-                        if BackgroundUpdatesCounter >= 2:
+                        bgCheckRate = int(getSettingsValue("PerformanceBackgroundCheckRate") or 50)
+                        if BackgroundUpdatesCounter >= bgCheckRate:
                             self.checkAndUpdateBackground()
                             BackgroundUpdatesCounter = 0
                         else:
@@ -1335,7 +1340,8 @@ try:
                     except ValueError as e:
                         timeStr = "Invalid time format\nPlease modify it\nin the settings"
                     self.callInMainSignal.emit(lambda: self.label.setText(timeStr))
-                    time.sleep(0.1 if LOW_CPU_MODE else 0.25)
+                    interval = float(getSettingsValue("PerformanceTextUpdateInterval") or 1000) / 1000
+                    time.sleep(interval)
 
             def singleClickAction(self):
                 if not self.IS_COVER:

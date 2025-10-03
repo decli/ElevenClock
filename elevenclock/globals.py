@@ -130,4 +130,9 @@ settingsList: list[str] = [
     "EnableHideOnRDP",
     "legacyFullScreenMethod",
     "DisableSystemClockCover",
+    "PerformanceTextUpdateInterval",
+    "PerformanceClockLoopInterval",
+    "PerformanceScreenCheckInterval",
+    "PerformanceWnfDataInterval",
+    "PerformanceBackgroundCheckRate",
 ]
